@@ -55,21 +55,22 @@ ic = np.array([ti, yi, ypi, l])  # initial time, final time, initial y and lambd
 R = [ODEsolve(Tmax, N, f, Euler, ic) for i,N in enumerate(n)]
 
 def f1(t,l): 
-    return np.cos(l*t)    # eq of d^2y/dt^2
+    return np.cos(l*t)    # exact solution of d^2y/dt^2
+
+F = [r'$\Delta t$',r'$\Delta t/2$',r'$\Delta t/4$']
 
 for i in range(len(R)):
     T = R[i][1]; Y = R[i][0][0]
     plt.subplot(2,1,1)
-    plt.plot(T, Y, label=r'$dt = %.5f$' %(Tmax/n[i]))
-    plt.xlabel(r'$Time$')
-    plt.ylabel(r'$Y$') 
-    plt.title('Graph of ODE')
+    plt.plot(T, Y, label=r'$\Delta t = %.5f$' %(Tmax/n[i])) 
+    plt.ylabel(r'$Y$ $(m)$') 
+    plt.title('Graph of ODE using Euler method')
     plt.legend(loc='best') 
     plt.grid() 
     plt.subplot(2,1,2)
-    plt.plot(T, f1(T,w)-Y, label=r'$delta$ $t = %.5f$' %(Tmax/n[i]) )
-    plt.xlabel(r'$Time$')
-    plt.ylabel(r'$Error$') 
+    plt.plot(T, f1(T,w)-Y, label=F[i] )
+    plt.xlabel(r'$Time$ $(s)$')
+    plt.ylabel(r'$Error$ $(m)$') 
     plt.legend(loc='best')
     plt.grid() 
 plt.savefig('Graph of ODE.png', bbox_inches='tight')
@@ -88,20 +89,20 @@ d1,d2 = ConvergenceTest(ODEsolve, Tmax, n, f, ic, Euler, 1)
 
 plt.figure()
 plt.subplot(2,1,1)
-plt.plot(d1, label=r'$Y - Y/2$')
-plt.plot(d2, label=r'$Y/2 - Y/4$')
-plt.xlabel(r'$Time$')
-plt.ylabel(r'$Convergence$') 
+plt.plot(T[::4],d1, label=r'$Y - Y/2$')
+plt.plot(T[::4],d2, label=r'$2\left(Y/2 - Y/4\right)$')
+plt.ylabel(r'$Error$ $(m)$') 
 plt.title('Graph of Convergence and Errors')
 plt.legend(loc='best') 
 plt.grid() 
 plt.subplot(2,1,2)
-plt.plot(d1/d2, label=r'$\frac{Y - Y/2}{Y/2 - Y/4}$')
-plt.xlabel(r'$Time$')
-plt.ylabel(r'$Error$') 
+plt.plot(T[::4],d1/d2, label=r'$\frac{Y - Y/2}{2\left(Y/2 - Y/4\right)}$')
+plt.xlabel(r'$Time$ $(s)$')
+plt.ylabel(r'$Convergence$') 
 plt.legend(loc='best')
 plt.grid() 
 plt.savefig('Graph of Convergence.png', bbox_inches='tight')  
+
 dt = (1/2)**np.linspace(1,18,18); Na = Tmax/dt
 
 A = [ODEsolve(Tmax, n, f, Euler, ic) for i, n in enumerate(Na)] 
