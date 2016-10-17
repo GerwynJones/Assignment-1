@@ -26,13 +26,13 @@ def Euler(ya, f, dt, l):
                
 def ODEsolve(Tmax, N, f, method, ic): 
     
-    t = np.zeros(N)   # defining the time array
+    t = np.zeros(N+1)   # defining the time array, adding 1 to get the time array to go to tmax and not Tmax - dt like it was doing before
     dt = Tmax/N; t[0] = ic[0]
 
-    y = np.zeros((2,N))  # defining a y array containging the y values and yp values
+    y = np.zeros((2,N+1))  # defining a y array containging the y values and yp values and + 1 to keep the size of Y and T consistent
     y[0,0] = ic[1]; y[1,0] = ic[2]
     
-    for i in xrange(0,int(N)-1):
+    for i in range(0,int(N)):
         y[:,i+1]  = method(y[:,i], f, dt , ic[3])
         t[i+1] = t[i] + dt
         
@@ -66,12 +66,14 @@ for i in range(len(R)):
     plt.ylabel(r'$Y$ $(m)$') 
     plt.title('Graph of ODE using Euler method')
     plt.legend(loc='best') 
+    plt.xlim(0,1)    
     plt.grid() 
     plt.subplot(2,1,2)
     plt.plot(T, f1(T,w)-Y, label=F[i] )
     plt.xlabel(r'$Time$ $(s)$')
     plt.ylabel(r'$Error$ $(m)$') 
     plt.legend(loc='best')
+    plt.xlim(0,1)
     plt.grid() 
 plt.savefig('Graph of ODE.png', bbox_inches='tight')
 
@@ -91,8 +93,8 @@ plt.figure()
 plt.subplot(2,1,1)
 plt.plot(T[::4],d1, label=r'$Y - Y/2$')
 plt.plot(T[::4],d2, label=r'$2\left(Y/2 - Y/4\right)$')
-plt.ylabel(r'$Error$ $(m)$') 
-plt.title('Graph of Convergence and Errors')
+plt.ylabel(r'$Difference$ $(m)$') 
+plt.title('Graph of Convergence and Difference')
 plt.legend(loc='best') 
 plt.grid() 
 plt.subplot(2,1,2)
@@ -110,13 +112,18 @@ A = [ODEsolve(Tmax, n, f, Euler, ic) for i, n in enumerate(Na)]
 Ydt = [A[i][0][0][-1] for i in range(len(A))]
 Tdt = [A[i][1][-1] for i in range(len(A))]
 
-Te = np.array(Tdt); Ye = f1(Te,w)
+Te = np.array(Tdt); Ye = f1(Te,w); Yt = -np.array(Ydt)
  
-plt.figure()   
-plt.loglog(Na, Ydt-Ye, label=r'$Error$')
-plt.xlabel(r'$Time$')
-plt.ylabel(r'$Y$') 
-plt.title('Graph of ODE')
+LN = np.log10(Na); LY = np.log10(Ydt - Ye); LMY = np.log10(Yt - Ye)
+
+
+fig = plt.figure()
+ax1 = fig.add_subplot(111)  
+ax1.scatter(LN[2:], LY[2:], c = 'k')
+ax1.scatter(LN[:2], LMY[:2], c = 'k')
+plt.xlabel(r'$Log_{10}$ $N$')
+plt.ylabel(r'$Log_{10}$ $\Delta Y_{t=1}$') 
+plt.title('Log-Log plot of Error in Y at t=1')
 plt.legend(loc='best') 
 plt.grid() 
 plt.show()    
